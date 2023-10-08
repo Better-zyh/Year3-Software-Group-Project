@@ -1,0 +1,32 @@
+server:
+  port: 8000
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/wuhu_xjtlu?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: sq2697811
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  servlet:
+    multipart:
+      max-request-size: 5MB
+      max-file-size: 5MB
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  mail:
+    host: smtp.qq.com
+    password: qiwufwkcahdabgjg
+    username: 308684051@qq.com
+#    properties:
+#      mail:
+#        smtp:
+#          ssl:
+#            enable: true
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.demo.domain

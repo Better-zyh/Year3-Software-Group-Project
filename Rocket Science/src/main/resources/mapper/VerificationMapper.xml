@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace命名空间对应dao文件root path路径(复制reffrence),是resultType！
+实现dao中的方法-sql语句
+#{} 来传入dao中的 @param
+-->
+<mapper namespace="com.example.demo.mapper.VerificationMapper">
+
+    <select id="codeOverdue" resultType="java.sql.Date">
+        SELECT create_time FROM bms_verification WHERE
+            user_id=#{user_id}
+    </select>
+
+    <delete id="deleteRecordByUserid">
+        DELETE
+        FROM bms_verification
+        WHERE user_id = #{user_id}
+    </delete>
+    <select id="verifyCode" resultType="java.lang.Object">
+        SELECT * FROM bms_verification
+        WHERE verification= #{code} and user_id=#{user_id}
+    </select>
+</mapper>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--namespace命名空间对应dao文件root path路径(复制reffrence),是resultType！
+实现dao中的方法-sql语句
+#{} 来传入dao中的 @param
+-->
+<mapper namespace="com.example.demo.mapper.TopicMapper">
+    <resultMap id="topicVO" type="com.example.demo.model.vo.PostVO">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="user_id" property="userId"/>
+        <result column="comments" property="comments"/>
+        <result column="view" property="view"/>
+        <result column="collects" property="collects"/>
+        <result column="top" property="top"/>
+        <result column="essence" property="essence"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modify_time" property="modifyTime"/>
+        <result column="username" property="username"/>
+        <result column="alias" property="alias"/>
+        <result column="avatar" property="avatar"/>
+        <result column="content" property="content"/>
+    </resultMap>
+
+    <select id="selectListAndPage" resultMap="topicVO">
+        <if test="tab == 'studyAbroad'">
+            SELECT
+            fuck.id, fuck.title, fuck.user_id, fuck.comments,
+            fuck.view, fuck.collects, fuck.top, fuck.essence,
+            fuck.create_time, fuck.modify_time, fuck.content,fuck.likes,
+            u.username, u.alias, u.avatar
+            FROM
+            (SELECT * FROM (SELECT pt.topic_id FROM bms_post_tag pt WHERE pt.`tag_id` = (SELECT t.id FROM bms_tag t WHERE t.name = 'studyAbroad')) AS top LEFT JOIN bms_post bp ON top.topic_id = bp.`id` ) AS fuck
+            LEFT JOIN ums_user u ON fuck.user_id = u.`id`
+        </if>
+        <if test="tab == 'academic'">
+            SELECT
+            fuck.id, fuck.title, fuck.user_id, fuck.comments,
+            fuck.view, fuck.collects, fuck.top, fuck.essence,
+            fuck.create_time, fuck.modify_time, fuck.content,fuck.likes,
+            u.username, u.alias, u.avatar
+            FROM
+            (SELECT * FROM (SELECT pt.topic_id FROM bms_post_tag pt WHERE pt.`tag_id` = (SELECT t.id FROM bms_tag t WHERE t.name = 'academic')) AS top LEFT JOIN bms_post bp ON top.topic_id = bp.`id` ) AS fuck
+            LEFT JOIN ums_user u ON fuck.user_id = u.`id`
+        </if>
+        <if test="tab == 'internship'">
+            SELECT
+            fuck.id, fuck.title, fuck.user_id, fuck.comments,
+            fuck.view, fuck.collects, fuck.top, fuck.essence,
+            fuck.create_time, fuck.modify_time, fuck.content,fuck.likes,
+            u.username, u.alias, u.avatar
+            FROM
+            (SELECT * FROM (SELECT pt.topic_id FROM bms_post_tag pt WHERE pt.`tag_id` = (SELECT t.id FROM bms_tag t WHERE t.name = 'internship')) AS top LEFT JOIN bms_post bp ON top.topic_id = bp.`id` ) AS fuck
+            LEFT JOIN ums_user u ON fuck.user_id = u.`id`
+        </if>
+        <if test="tab == 'secondhand'">
+            SELECT
+            fuck.id, fuck.title, fuck.user_id, fuck.comments,
+            fuck.view, fuck.collects, fuck.top, fuck.essence,
+            fuck.create_time, fuck.modify_time, fuck.content, fuck.likes,
+            u.username, u.alias, u.avatar
+            FROM
+            (SELECT * FROM (SELECT pt.topic_id FROM bms_post_tag pt WHERE pt.`tag_id` = (SELECT t.id FROM bms_tag t WHERE t.name = 'secondhand')) AS top LEFT JOIN bms_post bp ON top.topic_id = bp.`id` ) AS fuck
+            LEFT JOIN ums_user u ON fuck.user_id = u.`id`
+        </if>
+        <if test="tab == 'lostAndFound'">
+            SELECT
+            fuck.id, fuck.title, fuck.user_id, fuck.comments,
+            fuck.view, fuck.collects, fuck.top, fuck.essence,
+            fuck.create_time, fuck.modify_time, fuck.content, fuck.likes,
+            u.username, u.alias, u.avatar
+            FROM
+            (SELECT * FROM (SELECT pt.topic_id FROM bms_post_tag pt WHERE pt.`tag_id` = (SELECT t.id FROM bms_tag t WHERE t.name = 'lostAndFound')) AS top LEFT JOIN bms_post bp ON top.topic_id = bp.`id` ) AS fuck
+            LEFT JOIN ums_user u ON fuck.user_id = u.`id`
+        </if>
+        <if test="tab != 'studyAbroad'">
+            <if test="tab != 'academic'">
+                <if test="tab != 'internship'">
+                    <if test="tab != 'secondhand'">
+                        <if test="tab != 'lostAndFound'">
+                            SELECT
+                            t.id, t.title, t.user_id, t.comments,
+                            t.view, t.collects, t.top, t.essence,
+                            t.create_time, t.modify_time, t.content, t.likes,
+                            u.username, u.alias, u.avatar
+                            FROM bms_post t
+                            LEFT JOIN ums_user u
+                            ON t.user_id = u.id
+                            <where>
+                                <if test="tab == 'hot'">
+                                    date(t.create_time) &lt;= date_add(curdate(), interval 1 day)
+                                    and date(t.create_time) &gt;= date_sub(curdate(), interval 7 day)
+                                </if>
+                            </where>
+                            <if test="tab != 'hot'">
+                                order by t.create_time desc
+                            </if>
+                            <if test="tab == 'hot'">
+                                order by t.view desc, t.create_time desc
+                            </if>
+                        </if>
+                    </if>
+                </if>
+            </if>
+        </if>
+    </select>
+
+    <select id="searchByKeyword" resultMap="topicVO">
+        SELECT
+        t.id, t.title, t.user_id, t.comments,
+        t.view, t.collects, t.top, t.essence,
+        t.create_time, t.modify_time, t.content, t.likes,
+        u.username, u.alias, u.avatar
+        FROM bms_post t
+        LEFT JOIN ums_user u
+        ON t.user_id = u.id
+        <where>
+            <if test="keyword!=null">
+                and t.title like CONCAT('%','${keyword}')
+                or t.title like CONCAT('${keyword}','%')
+                or t.title like CONCAT('%','${keyword}','%')
+                or t.title = #{keyword}
+            </if>
+        </where>
+        order by t.view desc, t.create_time desc
+    </select>
+
+    <select id="searchByUser" resultMap="topicVO">
+        SELECT
+            t.id, t.title, t.user_id, t.comments,
+            t.view, t.collects, t.top, t.essence,
+            t.create_time, t.modify_time, t.likes
+        FROM bms_post t
+
+        <where>
+            t.user_id ='${user_id}'
+        </where>
+        order by t.create_time desc
+    </select>
+
+    <select id="searchByLiked" resultMap="topicVO">
+        SELECT
+        t.id, t.title, t.comments,
+        t.view, t.collects, t.top, t.essence,
+        t.create_time, t.modify_time,  t.likes,
+               u.user_id
+        FROM bms_post t
+        LEFT JOIN bms_post_user_like u
+        ON t.id = u.post_id
+        <where>
+            u.user_id ='${user_id}'
+        </where>
+        order by t.create_time desc
+    </select>
+    <select id="searchByTag" resultMap="topicVO">
+        SELECT t.id, t.title, t.user_id, t.comments,
+        t.view, t.collects, t.top, t.essence,
+        t.create_time, t.modify_time, t.content, t.likes,
+        u.username, u.alias, u.avatar
+        from
+        (Select * from bms_post
+        left join (select bms_tag.name as tag_name,bms_post_tag.topic_id as tag_topic_id from bms_tag left join
+        bms_post_tag on bms_tag.id = bms_post_tag.tag_id) as t
+        on t.tag_topic_id = bms_post.id) as t left join ums_user u on t.user_id = u.id;
+        <where>
+            <if test="tag!=null">
+                and t.tag_name like CONCAT('%','${tag}')
+                or t.tag_name like CONCAT('${tag}','%')
+                or t.tag_name like CONCAT('%','${tag}','%')
+                or t.tag_name = #{tag}
+            </if>
+        </where>
+        order by t.view desc, t.create_time desc
+    </select>
+
+    <select id="cancelLike">
+        DELETE
+        FROM bms_post_user_like
+        <where>
+            post_id = '${postid}'and
+            user_id = '${userid}'
+        </where>
+    </select>
+
+
+    <select id="judgeLikeExist" resultType="java.lang.Integer">
+        SELECT count(*) FROM bms_post_user_like
+        WHERE user_id = '${user_id}' AND post_id='${post_id}'
+    </select>
+
+    <select id="judgeLikeExistByUsername" resultType="java.lang.Integer">
+        SELECT count(*) FROM
+                (SELECT username, id FROM ums_user) AS t LEFT JOIN
+                (SELECT post_id, user_id FROM bms_post_user_like) AS f ON t.id = f.user_id
+        WHERE t.username = '${user_name}' AND post_id='${post_id}';
+    </select>
+
+</mapper>

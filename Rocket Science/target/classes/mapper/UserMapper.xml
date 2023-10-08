@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace命名空间对应dao文件root path路径(复制reffrence),是resultType！
+实现dao中的方法-sql语句
+#{} 来传入dao中的 @param
+-->
+<mapper namespace="com.example.demo.mapper.UserMapper">
+    <select id="verifyPassword" resultType="java.lang.String">
+        SELECT username, password FROM ums_user WHERE
+        username=#{username} AND password=#{password}
+    </select>
+
+    <select id="isActive" resultType="java.lang.Boolean">
+        SELECT active FROM ums_user WHERE
+            username=#{userName}
+    </select>
+    <select id="isFrozen" resultType="java.lang.Boolean">
+        SELECT status FROM ums_user WHERE
+            username =#{userName}
+    </select>
+    <update id="activateUserByUsername">
+        UPDATE ums_user
+        SET active= true
+        WHERE id =#{user_id}
+    </update>
+    <update id="freeze">
+        UPDATE ums_user
+        SET status= false
+        WHERE id =#{user_id}
+    </update>
+</mapper>

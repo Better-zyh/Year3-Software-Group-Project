@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--namespace命名空间对应dao文件root path路径(复制reffrence),是resultType！
+实现dao中的方法-sql语句
+#{} 来传入dao中的 @param
+-->
+<mapper namespace="com.example.demo.mapper.TagMapper">
+
+    <delete id="deleteTagInfoByPostId">
+        DELETE
+        FROM bms_post_tag
+        <where>
+            topic_id = '${post_id}'
+        </where>
+    </delete>
+
+
+</mapper>
